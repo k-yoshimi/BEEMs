@@ -1,0 +1,22 @@
+[physbo]
+max_itr = 5
+seed = 1
+score = "TS"
+params = ["J0'", "J0''"]
+"J0'" = [0.1, 0.8, 15]
+"J0''" = [0.02, 0.06, 9]
+
+[hphi_params]
+model = "SpinGC"
+method = "CG"
+lattice = "chain"
+L = 12
+exct = 2
+J0 = 1.0
+lanczos_max = 10000
+EigenvecIO = "none"
+
+[path]
+energy = "./output/zvo_energy.dat"
+target_csv = "./mag_j1j2j3.csv"
+hphi_dir = "../../../HPhi/build/src"

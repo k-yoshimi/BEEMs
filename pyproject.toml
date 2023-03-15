@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "beems"
+version = "0.1"
+description = "Bayesian Estimation tool of Effective Models"
+authors = ["Kazuyoshi Yoshimi, Ryo Tamura, Takahiro Misawa, Yusuke Konishi."]
+license = "GPL-3.0-or-later"
+
+readme = "README.md"
+repository = "https://github.com/k-yoshimi/BEEMs"
+
+packages = [
+  { include = "beems", from = "src" },
+  { include = "tool", from = "src" }
+  ]
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+numpy = "^1.14"
+scipy = "^1.7"
+tomli = "^2.0.1"
+tomli-w = "^1.0.0"
+physbo = "^1.1.0"
+h5py = "^3.8.0"
+pandas = "^1.3.0"
+tqdm = "^4.65.0"
+matplotlib  = "^3.5.3"
+
+[tool.poetry.extras]
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+beems = "beems.job:main"
+gauss_fit = "tool.gauss_fit:main"
+mag_plt = "tool.mag_plt:main"
+output_score = "tool.output_score:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
