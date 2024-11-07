@@ -2,37 +2,19 @@
 
 ## About
 
-*BEEMs* is a Bayesian optimization tool of Effective Models (BEEMs).
-In BEEMs, the quantum lattice model solver [HΦ](https://github.com/issp-center-dev/HPhi) is used as a forward problem solver to compute the magnetisation curve based on the given Hamiltonian. 
-The deviation between the obtained magnetisation curve and the target magnetisation curve is used as a cost function, 
-and the Bayesian optimization library [PHYSBO](https://github.com/issp-center-dev/PHYSBO) is used to propose the next candidate point of the Hamiltonian 
-for searching the minimum cost function. 
+*BEEMs* (Bayesian optimization of Effective Models) is a tool for optimizing quantum lattice models using Bayesian methods. It combines:
 
-## Folder structure
+- [HΦ](https://github.com/issp-center-dev/HPhi) as a quantum lattice solver to compute magnetization curves
+- [PHYSBO](https://github.com/issp-center-dev/PHYSBO) for Bayesian optimization to efficiently search the parameter space
 
-```
-  |--LICENSE         
-  |--README.md       
-  |
-  |--pyproject.toml
-  |
-  |--sample
-  |    |
-  |    |--spin_j1j2j3
-  |
-  |--src
-  |    |--beams
-  |    |--job.py
-  |    |--tool
-  |--test
-```
+Given a target magnetization curve, BEEMs finds the optimal Hamiltonian parameters by minimizing the deviation between computed and target curves.
 
-## Install
+## Installation
 
 ### Requirements
-You will need the following packages.
 
-- [HΦ](https://github.com/issp-center-dev/HPhi) 
+- [HΦ](https://github.com/issp-center-dev/HPhi)
+- Python packages listed in `pyproject.toml`
 
 The python packages are listed in `pyproject.toml`.
 

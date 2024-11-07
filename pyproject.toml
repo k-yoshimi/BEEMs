@@ -1,40 +1,48 @@
 [tool.poetry]
 name = "beems"
-version = "0.1"
+version = "0.1.0"  # Added patch version number for better semantic versioning
 description = "Bayesian Estimation tool of Effective Models"
-authors = ["Kazuyoshi Yoshimi, Ryo Tamura, Takahiro Misawa, Yusuke Konishi."]
+authors = ["Kazuyoshi Yoshimi", "Ryo Tamura", "Takahiro Misawa", "Yusuke Konishi"]  # Removed trailing period
 license = "GPL-3.0-or-later"
 
 readme = "README.md"
 repository = "https://github.com/k-yoshimi/BEEMs"
+keywords = ["bayesian-optimization", "physics", "materials-science"]  # Added relevant keywords
+classifiers = [  # Added classifiers for better PyPI categorization
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+]
 
 packages = [
-  { include = "beems", from = "src" },
-  { include = "tool", from = "src" }
-  ]
-
+    { include = "beems", from = "src" },
+    { include = "tool", from = "src" }
+]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-numpy = "^1.14"
-scipy = "^1.7"
-tomli = "^2.0.1"
-tomli-w = "^1.0.0"
-physbo = "^1.1.0"
-h5py = "^3.8.0"
-pandas = "^1.3.0"
-tqdm = "^4.65.0"
-matplotlib  = "^3.5.3"
+python = ">=3.7,<4.0"  # More explicit Python version constraint
+numpy = ">=1.14.0,<2.0.0"  # More explicit version constraints
+scipy = ">=1.7.0,<2.0.0"
+tomli = ">=2.0.1,<3.0.0"
+tomli-w = ">=1.0.0,<2.0.0"
+physbo = ">=1.1.0,<2.0.0"
+h5py = ">=3.8.0,<4.0.0"
+pandas = ">=1.3.0,<2.0.0"
+tqdm = ">=4.65.0,<5.0.0"
+matplotlib = ">=3.5.3,<4.0.0"
 
-[tool.poetry.extras]
-
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]  # Added recommended dev dependencies
+pytest = ">=7.0.0"
+black = ">=22.0.0"
+isort = ">=5.0.0"
+flake8 = ">=4.0.0"
 
 [tool.poetry.scripts]
 beems = "beems.job:main"
 gauss_fit = "tool.gauss_fit:main"
 mag_plt = "tool.mag_plt:main"
-output_score = "tool.output_score:main"
+output_score_list = "tool.output_score_list:main"  # Fixed script name to match actual file
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

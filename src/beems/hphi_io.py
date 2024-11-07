@@ -1,40 +1,64 @@
-# Parameter Parallelization tools for HPhi
-# Copyright (C) 2020 Kazuyoshi Yoshimi (The University of Tokyo)
+"""
+Parameter Parallelization tools for HPhi.
 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by 
-# the Free Software Foundation, either version 3 of the License, or 
-# (at your option) any later version. 
+This module provides classes for interfacing with HPhi quantum many-body solver,
+including input/output handling and parameter management.
 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-# GNU General Public License for more details. 
-
-# You should have received a copy of the GNU General Public License 
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# -------------------------------------------------------------
+Classes
+-------
+hphi_io_base : Base class for HPhi I/O
+hphi_io_spingc : Class for SpinGC model
+hphi_io_spin : Class for Spin model  
+hphi_io_hubbardgc : Class for HubbardGC model
+hphi_io_hubbard : Class for Hubbard model
+"""
 
 import numpy as np
 import os
 import subprocess
+
 class hphi_io_base(object):
+    """
+    Base class for HPhi input/output handling.
+
+    Provides common functionality for reading/writing input files,
+    running HPhi calculations, and extracting results.
+
+    Parameters
+    ----------
+    _hphi_cond : dict
+        Dictionary containing HPhi configuration with keys:
+        - path_hphi : str
+            Path to HPhi executable
+        - path_input_file : str 
+            Path to input file
+        - path_output_file : str
+            Path to output file
+    """
 
     def __init__(self, _hphi_cond):
-        """
-        Make default dictionaries for SpinGC model
-        Parameters
-        ----------
-        hphi_cond: dictionary
-            key: path_hphi, path_input_file, path_output_file
-        """
+        """Initialize base HPhi I/O class."""
         self.input_param = {}
         self.path_hphi = _hphi_cond["path_hphi"]
         self.input_path = _hphi_cond["path_input_file"]
         self.energy_path = "./output/zvo_energy.dat"
         self.energy_list = []
         self.sz_list = []
+
     def _read_data(file_name):
+        """
+        Read data from file and parse into dictionary.
+
+        Parameters
+        ----------
+        file_name : str
+            Path to input file
+
+        Returns
+        -------
+        dict
+            Parsed data dictionary
+        """
         import re
         dict_info = {}
         with open(file_name, "r") as fr:
@@ -55,40 +79,33 @@ class hphi_io_base(object):
                     const_info = line[:list_re.start() - 1].split(",")[:-1]
                     dict_info[tuple(const_info)] = tmp_modify_info
         return dict_info
-    def _make_input_file(self):
-        """
-        Make input file for HPhi using input_param dictionary.
-        Returns
-        -------
 
-        """
+    def _make_input_file(self):
+        """Make input file for HPhi using input_param dictionary."""
         with open(self.input_path, "w") as f:
             for key, item in self.input_param.items():
                 f.write("{} = {}\n".format(key, item))
 
     def _change_input(self, input_dict):
         """
-        Update information using input_dict.
+        Update input parameters with new values.
+
         Parameters
         ----------
-        input_dict: dictionary
-
-        Returns
-        -------
-
+        input_dict : dict
+            Dictionary of parameters to update
         """
-        # input_dict = {J0x: 1.0, J0x': 0.5, J0x'': 0.25)
         for key, value in input_dict.items():
             self.input_param[key] = value
 
     def _get_energy_sz_from_hphi(self):
         """
-        Get lists for energy and sz by reading file whose path is self.energy_path.
+        Get energy and Sz values from HPhi output.
+
         Returns
         -------
-        energy_list: list
-        sz_list: list
-
+        tuple
+            (energy_list, sz_list) containing energy and Sz values
         """
         energy_list = []
         sz_list = []
@@ -107,16 +124,27 @@ class hphi_io_base(object):
         return energy_list, sz_list
 
     def make_input_file(self, input_dict):
+        """
+        Update parameters and create input file.
+
+        Parameters
+        ----------
+        input_dict : dict
+            Dictionary of parameters to update
+        """
         self._change_input(input_dict)
         self._make_input_file()
 
     def run_dry(self, input_dict, path_to_file=None):
         """
-        Run dry mode to generate base input file.
+        Run HPhi in dry mode to generate base input file.
+
         Parameters
         ----------
-        input_dict: dictionary
-
+        input_dict : dict
+            Dictionary of input parameters
+        path_to_file : str, optional
+            Path to input file, defaults to self.input_path
         """
         if path_to_file is None:
             path_to_file = self.input_path
@@ -126,32 +154,48 @@ class hphi_io_base(object):
         subprocess.call(cmd, shell=True)
 
     def run_standard(self, path_to_file=None):
+        """
+        Run HPhi in standard mode.
+
+        Parameters
+        ----------
+        path_to_file : str, optional
+            Path to input file, defaults to self.input_path
+        """
         if path_to_file is None:
             path_to_file = self.input_path
         cmd = "{} -s {} > std.out".format(self.path_hphi, path_to_file)
         subprocess.call(cmd, shell=True)
 
     def run_expert(self, path_to_file=None):
+        """
+        Run HPhi in expert mode.
+
+        Parameters
+        ----------
+        path_to_file : str, optional
+            Path to input file, defaults to self.input_path
+        """
         if path_to_file is None:
             path_to_file = self.input_path
         cmd = "{} -e {} > std.out".format(self.path_hphi, path_to_file)
-        # cmd = "{} -e {}".format(self.path_hphi, path_to_file)
         subprocess.call(cmd, shell=True)
 
     def get_energy_sz_by_hphi(self, input_dict, ex_state=0):
         """
-        After calculation of HPhi,
-        energy and sz at ex_state-th eigen state are obtained.
-        (Default state is set as the ground state)
+        Calculate and return energy and Sz for given state.
+
         Parameters
         ----------
-        input_dict: dictionary
-        ex_state: int
+        input_dict : dict
+            Dictionary of input parameters
+        ex_state : int, optional
+            Excited state index (default: 0 for ground state)
 
         Returns
         -------
-        (energy, sz): tuple
-
+        tuple
+            (energy, sz) for specified state
         """
         self._change_input(input_dict)
         self._make_input_file()
@@ -166,23 +210,23 @@ class hphi_io_base(object):
 
     def get_input(self):
         """
-        Get input_param dictionary
+        Get current input parameters.
+
         Returns
         -------
-        input_param: dictionary
+        dict
+            Current input parameter dictionary
         """
         return self.input_param
 
     def delete_input(self, delete_keys_list):
         """
-        Delete keys in self.input_param
+        Delete specified parameters from input.
+
         Parameters
         ----------
-        delete_keys_list: list
-
-        Returns
-        -------
-
+        delete_keys_list : list
+            List of parameter keys to delete
         """
         for key in delete_keys_list:
             if key in self.input_param:
@@ -192,15 +236,19 @@ class hphi_io_base(object):
 
 
 class hphi_io_spingc(hphi_io_base):
+    """
+    Class for SpinGC model calculations.
+
+    Inherits from hphi_io_base and adds SpinGC-specific functionality.
+
+    Parameters
+    ----------
+    _hphi_cond : dict
+        HPhi configuration dictionary
+    """
 
     def __init__(self, _hphi_cond):
-        """
-        Make default dictionaries for SpinGC model
-        Parameters
-        ----------
-        hphi_cond: dictionary
-            key: path_hphi, path_input_file, path_output_file
-        """
+        """Initialize SpinGC model parameters."""
         super(hphi_io_spingc, self).__init__(_hphi_cond)
         self.input_param["model"] = "SpinGC"
         self.input_param["method"] = "CG"
@@ -218,6 +266,21 @@ class hphi_io_spingc(hphi_io_base):
         self.input_param["exct"] = 2
 
     def get_mag_from_file(self, file_name, parameter_list):
+        """
+        Get magnetization from file for given parameters.
+
+        Parameters
+        ----------
+        file_name : str
+            Path to input file
+        parameter_list : list
+            List of parameters to extract magnetization for
+
+        Returns
+        -------
+        float
+            Magnetization value
+        """
         data = _read_data(file_name)
         data_parameter = {}
         mag = None
@@ -230,8 +293,21 @@ class hphi_io_spingc(hphi_io_base):
         return mag
 
     def _modify_mag(self, h, data):
-        # data[i] : i-th eigenstate
-        # data[i] = (Ene, Sz)
+        """
+        Calculate modified magnetization.
+
+        Parameters
+        ----------
+        h : float
+            Field strength
+        data : dict
+            Dictionary of eigenstate data
+
+        Returns
+        -------
+        float
+            Modified magnetization value
+        """
         if np.isclose(data[0][0], data[1][0]):
             if h == 0.0:
                 mag = 0.0
@@ -243,14 +319,19 @@ class hphi_io_spingc(hphi_io_base):
 
 
 class hphi_io_spin(hphi_io_base):
+    """
+    Class for Spin model calculations.
+
+    Inherits from hphi_io_base and adds Spin-specific functionality.
+
+    Parameters
+    ----------
+    _hphi_cond : dict
+        HPhi configuration dictionary
+    """
+
     def __init__(self, _hphi_cond):
-        """
-        Make default dictionaries for Spin model
-        Parameters
-        ----------
-        hphi_cond: dictionary
-            key: path_hphi, path_input_file, path_output_file
-        """
+        """Initialize Spin model parameters."""
         super(hphi_io_spin, self).__init__(_hphi_cond)
         self.input_param["model"] = "Spin"
         self.input_param["method"] = "CG"
@@ -261,6 +342,21 @@ class hphi_io_spin(hphi_io_base):
         self.input_param["2Sz"] = 0
 
     def get_mag(self, sz_energy_list, H):
+        """
+        Calculate magnetization for given field strength.
+
+        Parameters
+        ----------
+        sz_energy_list : list
+            List of (Sz, energy) tuples
+        H : float
+            Field strength
+
+        Returns
+        -------
+        float
+            Magnetization value
+        """
         energy_mag = []
         for sz_energy in sz_energy_list:
             energy_mag.append(sz_energy[1] - sz_energy[0] * H)
@@ -268,6 +364,14 @@ class hphi_io_spin(hphi_io_base):
         return sz_energy_list[min_index][0]
 
     def _get_energy_from_hphi(self):
+        """
+        Extract energy values from HPhi output.
+
+        Returns
+        -------
+        list
+            List of energy values
+        """
         energy_list = []
         if os.path.exists("./output/zvo_energy.dat"):
             str_output = "./output/zvo_energy.dat"
@@ -280,6 +384,19 @@ class hphi_io_spin(hphi_io_base):
         return energy_list
 
     def get_energy_by_hphi(self, input_dict):
+        """
+        Calculate energies for all possible Sz values.
+
+        Parameters
+        ----------
+        input_dict : dict
+            Dictionary of input parameters
+
+        Returns
+        -------
+        list
+            List of (Sz, energy) tuples
+        """
         self._change_input(input_dict)
         # update 2Sz
         L = self.input_param["L"]
@@ -296,15 +413,19 @@ class hphi_io_spin(hphi_io_base):
 
 
 class hphi_io_hubbardgc(hphi_io_base):
+    """
+    Class for HubbardGC model calculations.
+
+    Inherits from hphi_io_base and adds HubbardGC-specific functionality.
+
+    Parameters
+    ----------
+    _hphi_cond : dict
+        HPhi configuration dictionary
+    """
 
     def __init__(self, _hphi_cond):
-        """
-        Make default dictionaries for HubbardGC model
-        Parameters
-        ----------
-        hphi_cond: dictionary
-            key: path_hphi, path_input_file, path_output_file
-        """
+        """Initialize HubbardGC model parameters."""
         super(hphi_io_hubbardgc, self).__init__(_hphi_cond)
         self.input_param["model"] = "HubbardGC"
         self.input_param["method"] = "CG"
@@ -316,15 +437,19 @@ class hphi_io_hubbardgc(hphi_io_base):
 
 
 class hphi_io_hubbard(hphi_io_base):
+    """
+    Class for Hubbard model calculations.
+
+    Inherits from hphi_io_base and adds Hubbard-specific functionality.
+
+    Parameters
+    ----------
+    _hphi_cond : dict
+        HPhi configuration dictionary
+    """
 
     def __init__(self, _hphi_cond):
-        """
-        Make default dictionaries for Hubbard model
-        Parameters
-        ----------
-        hphi_cond: dictionary
-            key: path_hphi, path_input_file, path_output_file
-        """
+        """Initialize Hubbard model parameters."""
         super(hphi_io_spingc, self).__init__(_hphi_cond)
         self.input_param["model"] = "Hubbard"
         self.input_param["method"] = "CG"
