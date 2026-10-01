@@ -142,7 +142,7 @@ Here, we briefly explain the meaning of each parameter.
 
   - num_search_each_probe, score, interval and num_rand_basis are variables to be passed to the function bayes_search to perform Bayesian optimization in the physbo.search.discrete.policy class
 
-    - For more information see https://issp-center-dev.github.io/PHYSBO/manual/master/ja/api/physbo.search.discrete.policy.html
+    - For more information see https://issp-center-dev.github.io/PHYSBO/manual/master/en/api/physbo.search.discrete.html#physbo.search.discrete.Policy (the class is named `Policy` in recent PHYSBO releases)
 
   - num_random (optional, integer, default value: 3)
 
@@ -164,7 +164,7 @@ Here, we briefly explain the meaning of each parameter.
 
   - If a parameter included in params is described here, it will be overwritten with the candidate value when BEEMs is executed.
 
-  - For information on the parameters available in HPhi's standard mode, see http://issp-center-dev.github.io/HPhi/manual/master/ja/html/filespecification/standardmode_ja/index See _standardmode_en.html
+  - For information on the parameters available in HPhi's standard mode, see the HPhi manual: [English](https://issp-center-dev.github.io/HPhi/manual/master/en/html/filespecification/standardmode_en/index_standardmode_en.html) / [Japanese](https://issp-center-dev.github.io/HPhi/manual/master/ja/html/filespecification/standardmode_ja/index_standardmode_ja.html)
 
 - [path] section
 
